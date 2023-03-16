@@ -59,14 +59,6 @@
   font-size: 24px;
 }
 
-#celsius,
-#fahrenheit {
-  text-decoration: none;
-  color: rgb(144, 144, 144);
-  font-weight: 600;
-  font-size: 12px;
-}
-
 .icon {
   width: 100px;
   height: 100px;
