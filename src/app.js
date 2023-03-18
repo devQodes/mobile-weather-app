@@ -17,51 +17,55 @@ let currentTime = document.querySelector(".time");
 currentDay.innerHTML = `${day}`;
 currentTime.innerHTML = `${time}`;
 
-function retrievePosition(position) {
-  let lon = position.coords.longitude;
-  let lat = position.coords.latitude;
-  let apiEndPoint = `https://api.shecodes.io/weather/v1/current?`;
-  let apiKey = `7ab4d37ad9of0d5ed95dbe4t3852c598`;
+function formatDay(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let day = date.getDay();
+  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days[day];
+}
+
+function displayCurrentLocationTemp(response) {
+  let currentLocation = response.data.name;
+  let currentWeather = response.data.weather[0].description;
+  let currentWeatherIcon = response.data.weather[0].icon;
+  let currentAlt = response.data.weather[0].description;
+  let currentWindSpeed = response.data.wind.speed;
+  let currentHumidity = response.data.main.humidity;
+  let currentCelsius = Math.round(response.data.main.temp);
+  let currentUnformattedCelsius = response.data.main.temp;
+
+  let location = document.querySelector(".city");
+  let weatherDescription = document.querySelector(".description");
+  let weatherIcon = document.querySelector(".icon");
+  weatherIcon.setAttribute(
+    "src",
+    `http://openweathermap.org/img/wn/${currentWeatherIcon}@2x.png`
+  );
+  weatherIcon.setAttribute("alt", currentAlt);
+  let windSpeed = document.querySelector(".windspeed-value");
+  let humidity = document.querySelector(".humidity-value");
+  let temp = document.querySelector(".temp");
+
+  location.innerHTML = `${currentLocation}`;
+  weatherDescription.innerHTML = `${currentWeather}`;
+  // weatherIcon.innerHTML;
+  windSpeed.innerHTML = `${currentWindSpeed} km/h`;
+  humidity.innerHTML = `${currentHumidity}%`;
+  temp.innerHTML = `${currentCelsius}°C`;
+  console.log(response);
+
+  getForecast(response.data.coord);
+}
+
+function retrievePosition(geolocationposition) {
+  let lon = geolocationposition.coords.longitude;
+  let lat = geolocationposition.coords.latitude;
+  let apiEndPoint = `https://api.openweathermap.org/data/2.5/weather?`;
+  let apiKey = `0829bfb409471205ac9c814cc7689b1c`;
   let unit = `metric`;
 
-  let apiUrl = `${apiEndPoint}lon=${lon}&lat=${lat}&key=${apiKey}&units=${unit}`;
-
-  function displayCurrentLocationTemp(response) {
-    let currentLocation = response.data.city;
-    let currentWeather = response.data.condition.description;
-    let currentWeatherIcon = response.data.condition.icon_url;
-    let currentAlt = response.data.condition.icon;
-    let currentWindSpeed = response.data.wind.speed;
-    let currentHumidity = response.data.temperature.humidity;
-    let currentCelsius = Math.round(response.data.temperature.current);
-    let currentUnformattedCelsius = response.data.temperature.current;
-
-    let location = document.querySelector(".city");
-    let weatherDescription = document.querySelector(".description");
-    let weatherIcon = document.querySelector(".icon");
-    weatherIcon.setAttribute("src", currentWeatherIcon);
-    weatherIcon.setAttribute("alt", currentAlt);
-    let windSpeed = document.querySelector(".windspeed-value");
-    let humidity = document.querySelector(".humidity-value");
-    let temp = document.querySelector(".temp");
-
-    location.innerHTML = `${currentLocation}`;
-    weatherDescription.innerHTML = `${currentWeather}`;
-    // weatherIcon.innerHTML;
-    windSpeed.innerHTML = `${currentWindSpeed} km/h`;
-    humidity.innerHTML = `${currentHumidity}%`;
-    temp.innerHTML = `${currentCelsius}°C`;
-
-    function displayCurrentCelsius() {
-      let temp = document.querySelector(".temp");
-      temp.innerHTML = `${currentCelsius}°C`;
-    }
-
-    let celsiusLink = document.querySelector("#celsius");
-
-    celsiusLink.addEventListener("click", displayCurrentCelsius);
-  }
-
+  let apiUrl = `${apiEndPoint}lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}`;
   axios.get(apiUrl).then(displayCurrentLocationTemp);
 }
 
@@ -103,15 +107,6 @@ function displayCity(event) {
     windSpeed.innerHTML = `${windSpeedData} km/h`;
     humidity.innerHTML = `${humidityData}%`;
     temp.innerHTML = `${celsiusData}°C`;
-
-    function displayCelsius() {
-      let temp = document.querySelector(".temp");
-      temp.innerHTML = `${celsiusData}°C`;
-    }
-
-    let celsiusLink = document.querySelector("#celsius");
-
-    celsiusLink.addEventListener("click", displayCelsius);
   }
 
   axios.get(apiUrl).then(displayWeather);
